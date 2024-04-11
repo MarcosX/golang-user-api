@@ -35,7 +35,7 @@ func TestGetUser(t *testing.T) {
 func TestGetNonExistingUser(t *testing.T) {
 	echo := echo.New()
 	req := httptest.NewRequest(http.MethodGet, "/user/:id", nil)
-	req.Header.Set("X-Session-ID", "samplesession")
+	req.Header.Set("X-Session-ID", "validsessioninvaliduser")
 	rec := httptest.NewRecorder()
 	echoContext := echo.NewContext(req, rec)
 	echoContext.SetParamNames("id")
@@ -45,6 +45,53 @@ func TestGetNonExistingUser(t *testing.T) {
 
 	if assert.NoError(t, handler.getUser(echoContext)) {
 		assert.Equal(t, http.StatusNotFound, rec.Code)
+	}
+}
+
+func TestGetUserNonExistingSession(t *testing.T) {
+	echo := echo.New()
+	req := httptest.NewRequest(http.MethodGet, "/user/:id", nil)
+	rec := httptest.NewRecorder()
+	echoContext := echo.NewContext(req, rec)
+	echoContext.SetParamNames("id")
+	echoContext.SetParamValues("0")
+
+	handler := newUserHandlerTest()
+
+	if assert.NoError(t, handler.getUser(echoContext)) {
+		assert.Equal(t, http.StatusBadRequest, rec.Code)
+	}
+}
+
+func TestGetUserInvalidSession(t *testing.T) {
+	echo := echo.New()
+	req := httptest.NewRequest(http.MethodGet, "/user/:id", nil)
+	req.Header.Set("X-Session-ID", "wrongsecretsession")
+	rec := httptest.NewRecorder()
+	echoContext := echo.NewContext(req, rec)
+	echoContext.SetParamNames("id")
+	echoContext.SetParamValues("0")
+
+	handler := newUserHandlerTest()
+
+	if assert.NoError(t, handler.getUser(echoContext)) {
+		assert.Equal(t, http.StatusBadRequest, rec.Code)
+	}
+}
+
+func TestGetUserInvalidSessionUserId(t *testing.T) {
+	echo := echo.New()
+	req := httptest.NewRequest(http.MethodGet, "/user/:id", nil)
+	req.Header.Set("X-Session-ID", "samplesession")
+	rec := httptest.NewRecorder()
+	echoContext := echo.NewContext(req, rec)
+	echoContext.SetParamNames("id")
+	echoContext.SetParamValues("99")
+
+	handler := newUserHandlerTest()
+
+	if assert.NoError(t, handler.getUser(echoContext)) {
+		assert.Equal(t, http.StatusBadRequest, rec.Code)
 	}
 }
 

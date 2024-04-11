@@ -43,11 +43,14 @@ func (s *MockSessionRepository) GetSession(sessionId string) (*Session, error) {
 func NewMockSessionRepository() *MockSessionRepository {
 	return &MockSessionRepository{
 		sessions: map[string]*Session{
-			"samplesession": {
+			"samplesession": { // userId set to 0
 				SignedToken: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIwIn0.hR9oaCu7Ud_Mr-QENEc-K6DLdZBaReap1rpvgnyEPU0",
 			},
 			"wrongsecretsession": {
 				SignedToken: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIwIn0.nL3zQibYzBCqwzILJ6KJQSiYEEXjxqnu5rM0_U-ZH0E",
+			},
+			"validsessioninvaliduser": { // userId set to 99
+				SignedToken: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI5OSJ9.PTxPX1DdhGraFnQp163hoXpafW0V-a-YOu55eWxblpA",
 			},
 		},
 	}
