@@ -1,6 +1,7 @@
 package api
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/brizenox/golang-user-api/internal/db"
@@ -8,11 +9,6 @@ import (
 )
 
 type (
-	userResponse struct {
-		Email       string `json:"email"`
-		DisplayName string `json:"display_name"`
-	}
-
 	userHandler struct {
 		userDB db.UserRepository
 	}
@@ -25,13 +21,10 @@ func NewUserHanlder() *userHandler {
 }
 
 func (u *userHandler) getUser(c echo.Context) error {
-	userDb, err := u.userDB.GetUser(c.Param("id"))
+	user, err := u.userDB.GetUser(c.Param("id"))
 	if err != nil {
-		return err
-	}
-	user := &userResponse{
-		Email:       userDb.Email,
-		DisplayName: userDb.Name,
+		log.Println(err)
+		return c.JSON(http.StatusNotFound, nil)
 	}
 	return c.JSON(http.StatusOK, user)
 }

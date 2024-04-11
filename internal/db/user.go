@@ -1,11 +1,9 @@
 package db
 
-import "fmt"
-
 type User struct {
-	Id    string
-	Name  string
-	Email string
+	Id    string `json:"-"`
+	Name  string `json:"name"`
+	Email string `json:"email"`
 }
 
 type UserRepository interface {
@@ -13,7 +11,6 @@ type UserRepository interface {
 }
 
 type realUserRepository struct {
-	users map[string]*User
 }
 
 func (u *realUserRepository) GetUser(id string) (*User, error) {
@@ -21,21 +18,5 @@ func (u *realUserRepository) GetUser(id string) (*User, error) {
 }
 
 func NewUserRepository() UserRepository {
-	return &realUserRepository{
-		users: map[string]*User{
-			"0": {
-				Email: "user@email.com",
-				Name:  "User",
-				Id:    "0",
-			},
-		},
-	}
-}
-
-type ErrUserNotFound struct {
-	Id string
-}
-
-func (e *ErrUserNotFound) Error() string {
-	return fmt.Sprintf("could not find user %s", e.Id)
+	return &realUserRepository{}
 }
