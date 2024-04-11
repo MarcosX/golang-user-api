@@ -1,4 +1,4 @@
-package health
+package api
 
 import (
 	"net/http"
@@ -10,7 +10,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestHealth(t *testing.T) {
+func TestGetGealth(t *testing.T) {
 	expectedResponse := `{"status":"UP"}`
 
 	echo := echo.New()
@@ -18,7 +18,7 @@ func TestHealth(t *testing.T) {
 	rec := httptest.NewRecorder()
 	echoContext := echo.NewContext(req, rec)
 
-	if assert.NoError(t, Health(echoContext)) {
+	if assert.NoError(t, getHealth(echoContext)) {
 		assert.Equal(t, http.StatusOK, rec.Code)
 		assert.Equal(t, expectedResponse, strings.Trim(rec.Body.String(), "\n"))
 	}

@@ -1,4 +1,4 @@
-package health
+package api
 
 import (
 	"net/http"
@@ -10,6 +10,6 @@ type healthResponse struct {
 	Status string `json:"status"`
 }
 
-func Health(c echo.Context) error {
+func getHealth(c echo.Context) error {
 	return c.JSON(http.StatusOK, &healthResponse{Status: "UP"})
 }
