@@ -15,7 +15,7 @@ func main() {
 	echoInstance.Pre(middleware.RemoveTrailingSlash())
 	echoInstance.Use(middleware.Recover())
 
-	echoInstance.GET("/health", api.Health)
+	api.SetupHandlers(echoInstance)
 
 	echoInstance.Logger.Fatal(echoInstance.Start(fmt.Sprintf(":%d", port)))
 }
