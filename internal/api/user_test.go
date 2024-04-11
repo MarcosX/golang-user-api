@@ -18,6 +18,7 @@ func TestGetUser(t *testing.T) {
 
 	echo := echo.New()
 	req := httptest.NewRequest(http.MethodGet, "/user/:id", nil)
+	req.Header.Set("X-Session-ID", "samplesession")
 	rec := httptest.NewRecorder()
 	echoContext := echo.NewContext(req, rec)
 	echoContext.SetParamNames("id")
@@ -34,6 +35,7 @@ func TestGetUser(t *testing.T) {
 func TestGetNonExistingUser(t *testing.T) {
 	echo := echo.New()
 	req := httptest.NewRequest(http.MethodGet, "/user/:id", nil)
+	req.Header.Set("X-Session-ID", "samplesession")
 	rec := httptest.NewRecorder()
 	echoContext := echo.NewContext(req, rec)
 	echoContext.SetParamNames("id")
@@ -48,6 +50,7 @@ func TestGetNonExistingUser(t *testing.T) {
 
 func newUserHandlerTest() *userHandler {
 	return &userHandler{
-		userDB: db.NewMockUserRepository(),
+		userRepository:    db.NewMockUserRepository(),
+		sessionRepository: db.NewMockSessionRepository(),
 	}
 }

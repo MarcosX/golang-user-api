@@ -3,6 +3,7 @@ module github.com/brizenox/golang-user-api
 go 1.22
 
 require (
+	github.com/golang-jwt/jwt/v5 v5.2.1
 	github.com/labstack/echo/v4 v4.10.0
 	github.com/stretchr/testify v1.8.1
 )

@@ -10,18 +10,27 @@ import (
 
 type (
 	userHandler struct {
-		userDB db.UserRepository
+		userRepository    db.UserRepository
+		sessionRepository db.SessionRepository
 	}
 )
 
 func NewUserHanlder() *userHandler {
 	return &userHandler{
-		userDB: db.NewUserRepository(),
+		userRepository:    db.NewUserRepository(),
+		sessionRepository: db.NewSessionRepository(),
 	}
 }
 
 func (u *userHandler) getUser(c echo.Context) error {
-	user, err := u.userDB.GetUser(c.Param("id"))
+	sessionId := c.Request().Header.Get("X-Session-ID")
+	_, err := u.sessionRepository.GetSession(sessionId)
+	if err != nil {
+		return err
+	}
+	// session.Token.Claims.
+
+	user, err := u.userRepository.GetUser(c.Param("id"))
 	if err != nil {
 		log.Println(err)
 		return c.JSON(http.StatusNotFound, nil)
