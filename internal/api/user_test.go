@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/brizenox/golang-user-api/internal/db"
+	"github.com/brizenox/golang-user-api/internal/session"
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
 )
@@ -18,7 +19,7 @@ func TestGetUser(t *testing.T) {
 
 	echo := echo.New()
 	req := httptest.NewRequest(http.MethodGet, "/user/:id", nil)
-	req.Header.Set("X-Session-ID", "samplesession")
+	req.Header.Set("X-Session-ID", session.ValidSession)
 	rec := httptest.NewRecorder()
 	echoContext := echo.NewContext(req, rec)
 	echoContext.SetParamNames("id")
@@ -35,7 +36,7 @@ func TestGetUser(t *testing.T) {
 func TestGetNonExistingUser(t *testing.T) {
 	echo := echo.New()
 	req := httptest.NewRequest(http.MethodGet, "/user/:id", nil)
-	req.Header.Set("X-Session-ID", "validsessioninvaliduser")
+	req.Header.Set("X-Session-ID", session.InvalidUserValidSession)
 	rec := httptest.NewRecorder()
 	echoContext := echo.NewContext(req, rec)
 	echoContext.SetParamNames("id")
@@ -66,7 +67,7 @@ func TestGetUserNonExistingSession(t *testing.T) {
 func TestGetUserInvalidSession(t *testing.T) {
 	echo := echo.New()
 	req := httptest.NewRequest(http.MethodGet, "/user/:id", nil)
-	req.Header.Set("X-Session-ID", "wrongsecretsession")
+	req.Header.Set("X-Session-ID", session.WrongSecretSession)
 	rec := httptest.NewRecorder()
 	echoContext := echo.NewContext(req, rec)
 	echoContext.SetParamNames("id")
@@ -82,7 +83,7 @@ func TestGetUserInvalidSession(t *testing.T) {
 func TestGetUserInvalidSessionUserId(t *testing.T) {
 	echo := echo.New()
 	req := httptest.NewRequest(http.MethodGet, "/user/:id", nil)
-	req.Header.Set("X-Session-ID", "samplesession")
+	req.Header.Set("X-Session-ID", session.ValidSession)
 	rec := httptest.NewRecorder()
 	echoContext := echo.NewContext(req, rec)
 	echoContext.SetParamNames("id")
@@ -97,7 +98,6 @@ func TestGetUserInvalidSessionUserId(t *testing.T) {
 
 func newUserHandlerTest() *userHandler {
 	return &userHandler{
-		userRepository:    db.NewMockUserRepository(),
-		sessionRepository: db.NewMockSessionRepository(),
+		userRepository: db.NewMockUserRepository(),
 	}
 }
