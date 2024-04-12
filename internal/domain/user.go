@@ -1,4 +1,4 @@
-package db
+package domain
 
 type User struct {
 	Id    string `json:"-"`

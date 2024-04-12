@@ -1,16 +1,18 @@
 package db
 
-var UserSample = &User{
+import "github.com/brizenox/golang-user-api/internal/domain"
+
+var UserSample = &domain.User{
 	Email: "user@email.com",
 	Name:  "User",
 	Id:    "0",
 }
 
 type MockUserRepository struct {
-	users map[string]*User
+	users map[string]*domain.User
 }
 
-func (u *MockUserRepository) GetUser(id string) (*User, error) {
+func (u *MockUserRepository) GetUser(id string) (*domain.User, error) {
 	elem, ok := u.users[id]
 	if ok {
 		return elem, nil
@@ -20,7 +22,7 @@ func (u *MockUserRepository) GetUser(id string) (*User, error) {
 
 func NewMockUserRepository() *MockUserRepository {
 	return &MockUserRepository{
-		users: map[string]*User{
+		users: map[string]*domain.User{
 			"0": UserSample,
 		},
 	}

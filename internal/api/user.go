@@ -4,7 +4,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/brizenox/golang-user-api/internal/db"
+	"github.com/brizenox/golang-user-api/internal/domain"
 	"github.com/brizenox/golang-user-api/internal/session"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/labstack/echo/v4"
@@ -12,13 +12,13 @@ import (
 
 type (
 	userHandler struct {
-		userRepository db.UserRepository
+		userRepository domain.UserRepository
 	}
 )
 
 func NewUserHanlder() *userHandler {
 	return &userHandler{
-		userRepository: db.NewUserRepository(),
+		userRepository: domain.NewUserRepository(),
 	}
 }
 
