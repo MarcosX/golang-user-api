@@ -21,13 +21,13 @@ func TestWrongSecretSessionToken(t *testing.T) {
 }
 
 func TestGetTestSessionSecretKey(t *testing.T) {
-	key := getSessionKey()
+	key := GetSessionKey()
 	assert.Equal(t, []byte("Session Secret Key"), key)
 }
 
 func TestGetSessionSecretKeyFromEnv(t *testing.T) {
 	os.Setenv("SESSION_KEY", "Key From Env")
-	key := getSessionKey()
+	key := GetSessionKey()
 	assert.Equal(t, []byte("Key From Env"), key)
 	os.Unsetenv("SESSION_KEY")
 }

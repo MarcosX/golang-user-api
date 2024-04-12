@@ -7,7 +7,7 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
-func getSessionKey() []byte {
+func GetSessionKey() []byte {
 	if envKey, ok := os.LookupEnv("SESSION_KEY"); ok {
 		return []byte(envKey)
 	}
@@ -22,7 +22,7 @@ type CustomClaims struct {
 
 func GetClaims(signedToken string) (*CustomClaims, error) {
 	token, err := jwt.ParseWithClaims(signedToken, &CustomClaims{}, func(token *jwt.Token) (interface{}, error) {
-		return getSessionKey(), nil
+		return GetSessionKey(), nil
 	})
 	if err != nil {
 		log.Println(err)

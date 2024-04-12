@@ -6,6 +6,7 @@ import (
 
 	"github.com/brizenox/golang-user-api/internal/db"
 	"github.com/brizenox/golang-user-api/internal/session"
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/labstack/echo/v4"
 )
 
@@ -22,21 +23,17 @@ func NewUserHanlder() *userHandler {
 }
 
 func (u *userHandler) getUser(c echo.Context) error {
-	sessionToken := c.Request().Header.Get("X-Session-ID")
-	if sessionToken == "" {
-		return c.String(http.StatusBadRequest, "no user session")
-	}
-
 	userId := c.Param("id")
-	sessionClaims, err := session.GetClaims(sessionToken)
-	if err != nil {
-		return c.NoContent(http.StatusBadRequest)
+	if c.Get("user") == nil {
+		return c.String(http.StatusBadRequest, "invalid user session")
 	}
+	sessionClaims := c.Get("user").(*jwt.Token).Claims.(*session.CustomClaims)
+
 	if sessionClaims.UserId == userId {
 		user, err := u.userRepository.GetUser(userId)
 		if err != nil {
 			log.Println(err)
-			return c.JSON(http.StatusNotFound, nil)
+			return c.NoContent(http.StatusNotFound)
 		}
 		return c.JSON(http.StatusOK, user)
 	}

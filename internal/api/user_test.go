@@ -9,6 +9,7 @@ import (
 
 	"github.com/brizenox/golang-user-api/internal/db"
 	"github.com/brizenox/golang-user-api/internal/session"
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
 )
@@ -17,11 +18,11 @@ func TestGetUser(t *testing.T) {
 	b, _ := json.Marshal(db.UserSample)
 	expectedResponse := string(b)
 
-	echo := echo.New()
 	req := httptest.NewRequest(http.MethodGet, "/user/:id", nil)
-	req.Header.Set("X-Session-ID", session.ValidSession)
 	rec := httptest.NewRecorder()
-	echoContext := echo.NewContext(req, rec)
+
+	echoContext := echo.New().NewContext(req, rec)
+	echoContext.Set("user", createToken(session.ValidSession))
 	echoContext.SetParamNames("id")
 	echoContext.SetParamValues("0")
 
@@ -34,11 +35,11 @@ func TestGetUser(t *testing.T) {
 }
 
 func TestGetNonExistingUser(t *testing.T) {
-	echo := echo.New()
 	req := httptest.NewRequest(http.MethodGet, "/user/:id", nil)
-	req.Header.Set("X-Session-ID", session.InvalidUserValidSession)
 	rec := httptest.NewRecorder()
-	echoContext := echo.NewContext(req, rec)
+
+	echoContext := echo.New().NewContext(req, rec)
+	echoContext.Set("user", createToken(session.InvalidUserValidSession))
 	echoContext.SetParamNames("id")
 	echoContext.SetParamValues("99")
 
@@ -50,26 +51,10 @@ func TestGetNonExistingUser(t *testing.T) {
 }
 
 func TestGetUserNonExistingSession(t *testing.T) {
-	echo := echo.New()
 	req := httptest.NewRequest(http.MethodGet, "/user/:id", nil)
 	rec := httptest.NewRecorder()
-	echoContext := echo.NewContext(req, rec)
-	echoContext.SetParamNames("id")
-	echoContext.SetParamValues("0")
 
-	handler := newUserHandlerTest()
-
-	if assert.NoError(t, handler.getUser(echoContext)) {
-		assert.Equal(t, http.StatusBadRequest, rec.Code)
-	}
-}
-
-func TestGetUserInvalidSession(t *testing.T) {
-	echo := echo.New()
-	req := httptest.NewRequest(http.MethodGet, "/user/:id", nil)
-	req.Header.Set("X-Session-ID", session.WrongSecretSession)
-	rec := httptest.NewRecorder()
-	echoContext := echo.NewContext(req, rec)
+	echoContext := echo.New().NewContext(req, rec)
 	echoContext.SetParamNames("id")
 	echoContext.SetParamValues("0")
 
@@ -83,9 +68,10 @@ func TestGetUserInvalidSession(t *testing.T) {
 func TestGetUserInvalidSessionUserId(t *testing.T) {
 	echo := echo.New()
 	req := httptest.NewRequest(http.MethodGet, "/user/:id", nil)
-	req.Header.Set("X-Session-ID", session.ValidSession)
 	rec := httptest.NewRecorder()
+
 	echoContext := echo.NewContext(req, rec)
+	echoContext.Set("user", createToken(session.ValidSession))
 	echoContext.SetParamNames("id")
 	echoContext.SetParamValues("99")
 
@@ -100,4 +86,11 @@ func newUserHandlerTest() *userHandler {
 	return &userHandler{
 		userRepository: db.NewMockUserRepository(),
 	}
+}
+
+func createToken(signedToken string) *jwt.Token {
+	jwtToken, _ := jwt.ParseWithClaims(signedToken, &session.CustomClaims{}, func(t *jwt.Token) (interface{}, error) {
+		return session.GetSessionKey(), nil
+	})
+	return jwtToken
 }
