@@ -7,7 +7,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/brizenox/golang-user-api/internal/db"
+	"github.com/brizenox/golang-user-api/internal/domain"
 	"github.com/brizenox/golang-user-api/internal/session"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/labstack/echo/v4"
@@ -15,7 +15,7 @@ import (
 )
 
 func TestGetUser(t *testing.T) {
-	b, _ := json.Marshal(db.UserSample)
+	b, _ := json.Marshal(domain.UserSample)
 	expectedResponse := string(b)
 
 	req := httptest.NewRequest(http.MethodGet, "/user/:id", nil)
@@ -83,6 +83,6 @@ func TestGetUserInvalidSessionUserId(t *testing.T) {
 
 func newUserHandlerTest() *userHandler {
 	return &userHandler{
-		userRepository: db.NewMockUserRepository(),
+		userRepository: domain.NewMockUserRepository(),
 	}
 }
