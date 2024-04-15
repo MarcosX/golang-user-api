@@ -26,3 +26,11 @@ go run cmd/main.go
 ```
 GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o build/golang_user_api cmd/main.go
 ```
+
+# Login with test credentials
+
+```
+curl -X POST http://localhost:8080/login \
+  -d 'email=user@email.com&password=pass' \
+  -H "Content-Type: application/x-www-form-urlencoded"
+```

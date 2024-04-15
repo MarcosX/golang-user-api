@@ -29,9 +29,9 @@ func TestPostLogin(t *testing.T) {
 		assert.Equal(t, http.StatusOK, rec.Code)
 		response := &loginResponse{}
 		json.NewDecoder(rec.Body).Decode(response)
-		sessionData, err := session.GetClaims(response.Token)
+		sessionData, err := session.SessionData().ReadClaims(response.Token)
 		if assert.NoError(t, err) {
-			assert.Equal(t, "0", sessionData.UserId)
+			assert.Equal(t, "user@email.com", sessionData.UserEmail)
 		}
 	}
 }

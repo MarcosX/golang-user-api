@@ -7,24 +7,26 @@ import (
 )
 
 func TestGetclaims(t *testing.T) {
-	claims, err := GetClaims(ValidSession)
+	tokenString, _ := SessionData().CreateSignedToken("user@email.com")
+	claims, err := SessionData().ReadClaims(tokenString)
 	if assert.NoError(t, err) {
-		assert.Equal(t, "0", claims.UserId)
+		assert.Equal(t, "user@email.com", claims.UserEmail)
 	}
 }
 
 func TestWrongSecretSessionToken(t *testing.T) {
-	claims, err := GetClaims(WrongSecretSession)
+	fakeSessionToke := "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIwIn0.nL3zQibYzBCqwzILJ6KJQSiYEEXjxqnu5rM0_U-ZH0E"
+	claims, err := SessionData().ReadClaims(fakeSessionToke)
 	assert.Error(t, err)
 	assert.Nil(t, claims)
 }
 
 func TestCreateToken(t *testing.T) {
-	tokenString, err := CreateSignedToken("0")
+	tokenString, err := SessionData().CreateSignedToken("user@email.com")
 	if assert.NoError(t, err) {
-		claims, err := GetClaims(tokenString)
+		claims, err := SessionData().ReadClaims(tokenString)
 		if assert.NoError(t, err) {
-			assert.Equal(t, "0", claims.UserId)
+			assert.Equal(t, "user@email.com", claims.UserEmail)
 		}
 	}
 }

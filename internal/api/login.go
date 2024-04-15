@@ -30,7 +30,7 @@ func (h *loginHandler) postLogin(c echo.Context) error {
 		return c.NoContent(http.StatusBadRequest)
 	}
 	if user.PasswordMatches(c.FormValue("password")) {
-		token, err := session.CreateSignedToken("0")
+		token, err := session.SessionData().CreateSignedToken("user@email.com")
 		if err != nil {
 			log.Println(err)
 			return c.NoContent(http.StatusInternalServerError)

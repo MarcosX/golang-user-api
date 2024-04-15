@@ -29,13 +29,14 @@ func (u *userHandler) getUser(c echo.Context) error {
 	}
 	sessionClaims := c.Get("user").(*jwt.Token).Claims.(*session.CustomClaims)
 
-	if sessionClaims.UserId == userId {
-		user, err := u.userRepository.GetUser(userId)
-		if err != nil {
-			log.Println(err)
-			return c.NoContent(http.StatusNotFound)
-		}
+	user, err := u.userRepository.GetUser(userId)
+	if err != nil {
+		log.Println(err)
+		return c.NoContent(http.StatusNotFound)
+	}
+	if user.Email == sessionClaims.UserEmail {
 		return c.JSON(http.StatusOK, user)
 	}
+
 	return c.JSON(http.StatusForbidden, map[string]string{"message": "invalid user session"})
 }
