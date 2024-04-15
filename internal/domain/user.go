@@ -14,7 +14,11 @@ type realUserRepository struct {
 }
 
 func (u *realUserRepository) GetUser(id string) (*User, error) {
-	panic("Not implemented")
+	return &User{
+		Id:    id,
+		Name:  "User",
+		Email: "user@email.com",
+	}, nil
 }
 
 func NewUserRepository() UserRepository {

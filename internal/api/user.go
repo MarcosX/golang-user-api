@@ -25,7 +25,7 @@ func NewUserHanlder() *userHandler {
 func (u *userHandler) getUser(c echo.Context) error {
 	userId := c.Param("id")
 	if c.Get("user") == nil {
-		return c.String(http.StatusBadRequest, "invalid user session")
+		return c.JSON(http.StatusBadRequest, map[string]string{"message": "invalid user session"})
 	}
 	sessionClaims := c.Get("user").(*jwt.Token).Claims.(*session.CustomClaims)
 
@@ -37,5 +37,5 @@ func (u *userHandler) getUser(c echo.Context) error {
 		}
 		return c.JSON(http.StatusOK, user)
 	}
-	return c.String(http.StatusBadRequest, "invalid user session")
+	return c.JSON(http.StatusForbidden, map[string]string{"message": "invalid user session"})
 }

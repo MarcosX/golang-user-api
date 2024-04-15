@@ -22,7 +22,7 @@ func TestGetUser(t *testing.T) {
 	rec := httptest.NewRecorder()
 
 	echoContext := echo.New().NewContext(req, rec)
-	echoContext.Set("user", createToken(session.ValidSession))
+	echoContext.Set("user", jwt.NewWithClaims(jwt.SigningMethodRS256, &session.CustomClaims{UserId: "0"}))
 	echoContext.SetParamNames("id")
 	echoContext.SetParamValues("0")
 
@@ -39,7 +39,7 @@ func TestGetNonExistingUser(t *testing.T) {
 	rec := httptest.NewRecorder()
 
 	echoContext := echo.New().NewContext(req, rec)
-	echoContext.Set("user", createToken(session.InvalidUserValidSession))
+	echoContext.Set("user", jwt.NewWithClaims(jwt.SigningMethodRS256, &session.CustomClaims{UserId: "99"}))
 	echoContext.SetParamNames("id")
 	echoContext.SetParamValues("99")
 
@@ -66,19 +66,18 @@ func TestGetUserNonExistingSession(t *testing.T) {
 }
 
 func TestGetUserInvalidSessionUserId(t *testing.T) {
-	echo := echo.New()
 	req := httptest.NewRequest(http.MethodGet, "/user/:id", nil)
 	rec := httptest.NewRecorder()
 
-	echoContext := echo.NewContext(req, rec)
-	echoContext.Set("user", createToken(session.ValidSession))
+	echoContext := echo.New().NewContext(req, rec)
+	echoContext.Set("user", jwt.NewWithClaims(jwt.SigningMethodRS256, &session.CustomClaims{UserId: "0"}))
 	echoContext.SetParamNames("id")
 	echoContext.SetParamValues("99")
 
 	handler := newUserHandlerTest()
 
 	if assert.NoError(t, handler.getUser(echoContext)) {
-		assert.Equal(t, http.StatusBadRequest, rec.Code)
+		assert.Equal(t, http.StatusForbidden, rec.Code)
 	}
 }
 
@@ -86,11 +85,4 @@ func newUserHandlerTest() *userHandler {
 	return &userHandler{
 		userRepository: db.NewMockUserRepository(),
 	}
-}
-
-func createToken(signedToken string) *jwt.Token {
-	jwtToken, _ := jwt.ParseWithClaims(signedToken, &session.CustomClaims{}, func(t *jwt.Token) (interface{}, error) {
-		return session.GetSessionKey(), nil
-	})
-	return jwtToken
 }

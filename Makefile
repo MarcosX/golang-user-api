@@ -1,4 +1,4 @@
-.PHONY: build
+.PHONY: build test
 
 test:
 	go test -race -cover -failfast -count=1 ./...

@@ -1,7 +1,6 @@
 package session
 
 import (
-	"os"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -20,14 +19,12 @@ func TestWrongSecretSessionToken(t *testing.T) {
 	assert.Nil(t, claims)
 }
 
-func TestGetTestSessionSecretKey(t *testing.T) {
-	key := GetSessionKey()
-	assert.Equal(t, []byte("Session Secret Key"), key)
-}
-
-func TestGetSessionSecretKeyFromEnv(t *testing.T) {
-	os.Setenv("SESSION_KEY", "Key From Env")
-	key := GetSessionKey()
-	assert.Equal(t, []byte("Key From Env"), key)
-	os.Unsetenv("SESSION_KEY")
+func TestCreateToken(t *testing.T) {
+	tokenString, err := CreateSignedToken("0")
+	if assert.NoError(t, err) {
+		claims, err := GetClaims(tokenString)
+		if assert.NoError(t, err) {
+			assert.Equal(t, "0", claims.UserId)
+		}
+	}
 }

@@ -18,7 +18,7 @@ func SetupHandlers(echoInstance *echo.Echo) {
 		NewClaimsFunc: func(c echo.Context) jwt.Claims {
 			return new(session.CustomClaims)
 		},
-		SigningKey: session.GetSessionKey(),
+		SigningKey: session.GetPublicSessionKey(),
 	}
 	userGroup := echoInstance.Group("/user", echojwt.WithConfig(config))
 
