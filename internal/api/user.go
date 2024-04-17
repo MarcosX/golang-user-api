@@ -1,8 +1,8 @@
 package api
 
 import (
-	"log"
 	"net/http"
+	"strings"
 
 	"github.com/brizenox/golang-user-api/internal/domain"
 	"github.com/brizenox/golang-user-api/internal/session"
@@ -31,12 +31,11 @@ func (u *userHandler) getUser(c echo.Context) error {
 
 	user, err := u.userRepository.GetUser(userId)
 	if err != nil {
-		log.Println(err)
 		return c.NoContent(http.StatusNotFound)
 	}
-	if user.Email == sessionClaims.UserEmail {
-		return c.JSON(http.StatusOK, user)
+	if !strings.EqualFold(user.Email, sessionClaims.UserEmail) {
+		return c.JSON(http.StatusForbidden, map[string]string{"message": "invalid user session"})
 	}
 
-	return c.JSON(http.StatusForbidden, map[string]string{"message": "invalid user session"})
+	return c.JSON(http.StatusOK, user)
 }

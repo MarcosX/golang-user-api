@@ -74,7 +74,9 @@ func EnforceValidSession() echo.MiddlewareFunc {
 		NewClaimsFunc: func(c echo.Context) jwt.Claims {
 			return new(CustomClaims)
 		},
-		SigningKey: SessionData().PublicKey,
+		ContextKey:    "user",
+		SigningMethod: "RS256",
+		SigningKey:    SessionData().PublicKey,
 	}
 	return echojwt.WithConfig(config)
 }
