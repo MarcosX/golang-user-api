@@ -39,3 +39,16 @@ func (u *userHandler) getUser(c echo.Context) error {
 
 	return c.JSON(http.StatusOK, user)
 }
+
+func (u *userHandler) postUser(c echo.Context) error {
+	name := c.FormValue("name")
+	email := c.FormValue("email")
+	password := c.FormValue("password")
+
+	user, err := u.userRepository.CreateUser(name, email, password)
+	if err != nil {
+		return c.NoContent(http.StatusBadRequest)
+	}
+
+	return c.JSON(http.StatusCreated, user)
+}

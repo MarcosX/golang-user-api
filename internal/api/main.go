@@ -19,4 +19,8 @@ func SetupHandlers(echoInstance *echo.Echo) {
 	loginHandler := NewLoginHandler()
 	loginGroup := echoInstance.Group("/login")
 	loginGroup.POST("", loginHandler.postLogin)
+
+	signupHandler := NewSignupHandler()
+	signupGroup := echoInstance.Group("/signup")
+	signupGroup.POST("", signupHandler.postSignup)
 }

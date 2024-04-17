@@ -1,40 +1,38 @@
 package domain
 
-type User struct {
-	Id       string `json:"-"`
-	Name     string `json:"name"`
-	Email    string `json:"email"`
-	Password string `json:"-"`
-}
-
-func (u *User) PasswordMatches(password string) bool {
-	return u.Password == password
-}
+import (
+	"github.com/brizenox/golang-user-api/internal/db"
+)
 
 type UserRepository interface {
-	GetUser(id string) (*User, error)
-	GetUserByEmail(name string) (*User, error)
+	GetUser(id string) (*db.User, error)
+	GetUserByEmail(name string) (*db.User, error)
+	CreateUser(name string, email string, password string) (*db.User, error)
 }
 
 type realUserRepository struct {
 }
 
-func (u *realUserRepository) GetUser(id string) (*User, error) {
-	return &User{
-		Id:       id,
-		Name:     "User",
-		Email:    "user@email.com",
-		Password: "pass",
-	}, nil
+func (u *realUserRepository) GetUser(id string) (*db.User, error) {
+	for _, v := range db.GetAllUsers() {
+		if v.Id == id {
+			return v, nil
+		}
+	}
+	return nil, &db.ErrUserNotFound{Id: id}
 }
 
-func (u *realUserRepository) GetUserByEmail(email string) (*User, error) {
-	return &User{
-		Id:       "0",
-		Name:     "User",
-		Email:    "user@email.com",
-		Password: "pass",
-	}, nil
+func (u *realUserRepository) GetUserByEmail(email string) (*db.User, error) {
+	for _, v := range db.GetAllUsers() {
+		if v.Email == email {
+			return v, nil
+		}
+	}
+	return nil, &db.ErrUserNotFound{Id: email}
+}
+
+func (u *realUserRepository) CreateUser(name string, email string, password string) (*db.User, error) {
+	return db.CreateUser(name, email, password)
 }
 
 func NewUserRepository() UserRepository {
