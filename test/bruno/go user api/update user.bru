@@ -1,0 +1,21 @@
+meta {
+  name: update user
+  type: http
+  seq: 6
+}
+
+post {
+  url: http://localhost:8080/signup
+  body: formUrlEncoded
+  auth: none
+}
+
+headers {
+  Content-Type: application/x-www-form-urlencoded
+}
+
+body:form-urlencoded {
+  email: maggie@email.com
+  password: maggie
+  name: Maggie
+}

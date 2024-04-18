@@ -30,9 +30,9 @@ func TestPostSignup(t *testing.T) {
 		assert.Equal(t, http.StatusOK, rec.Code)
 		response := &signupResponse{}
 		json.NewDecoder(rec.Body).Decode(response)
-		sessionData, err := session.SessionData().ReadClaims(response.Token)
+		token, err := session.SessionData().ReadClaims(response.Token)
 		if assert.NoError(t, err) {
-			assert.Equal(t, "usertest@email.com", sessionData.Subject)
+			assert.Equal(t, "usertest@email.com", token.Subject)
 		}
 	}
 }

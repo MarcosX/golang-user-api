@@ -15,6 +15,7 @@ func SetupHandlers(echoInstance *echo.Echo) {
 
 	userHandler := NewUserHanlder()
 	userGroup.GET("", userHandler.getUser)
+	userGroup.PUT("", userHandler.putUser)
 
 	loginHandler := NewLoginHandler()
 	loginGroup := echoInstance.Group("/login")

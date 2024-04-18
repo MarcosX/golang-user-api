@@ -44,3 +44,7 @@ func GetAllUsers() []*User {
 	}
 	return users
 }
+
+func SaveUser(user *User) {
+	db[user.Id] = user
+}

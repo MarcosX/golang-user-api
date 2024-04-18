@@ -50,6 +50,20 @@ func (u *mockUserRepository) CreateUser(name string, email string, password stri
 	return user, nil
 }
 
+func (u *mockUserRepository) UpdateUser(id string, name string, email string, password string) (*db.User, error) {
+	if name == "Crash()" {
+		return nil, fmt.Errorf("Crash() called")
+	}
+	user := &db.User{
+		Id:       id,
+		Name:     name,
+		Email:    email,
+		Password: password,
+	}
+	u.users[id] = user
+	return user, nil
+}
+
 func NewMockUserRepository() *mockUserRepository {
 	return &mockUserRepository{
 		lastId: 0,
