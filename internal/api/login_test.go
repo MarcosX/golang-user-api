@@ -31,7 +31,7 @@ func TestPostLogin(t *testing.T) {
 		json.NewDecoder(rec.Body).Decode(response)
 		sessionData, err := session.SessionData().ReadClaims(response.Token)
 		if assert.NoError(t, err) {
-			assert.Equal(t, "user@email.com", sessionData.UserEmail)
+			assert.Equal(t, "user@email.com", sessionData.Subject)
 		}
 	}
 }

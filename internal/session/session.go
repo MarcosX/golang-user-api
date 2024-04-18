@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"time"
 
 	"github.com/golang-jwt/jwt/v5"
 	echojwt "github.com/labstack/echo-jwt/v4"
@@ -29,7 +30,7 @@ func SessionData() *sessionData {
 	if env, ok := os.LookupEnv("SESSION_PUBLIC_KEY"); ok {
 		publicKeyPath = env
 	} else {
-		log.Println("Using test session keys!!!")
+		log.Println("Using public test session keys!!!")
 	}
 	publicKeyFile, err := os.ReadFile(publicKeyPath)
 	if err != nil {
@@ -44,7 +45,7 @@ func SessionData() *sessionData {
 	if env, ok := os.LookupEnv("SESSION_PRIVATE_KEY"); ok {
 		privateKeyPath = env
 	} else {
-		log.Println("Using test session keys!!!")
+		log.Println("Using private test session keys!!!")
 	}
 	privateKeyFile, err := os.ReadFile(privateKeyPath)
 	if err != nil {
@@ -60,7 +61,12 @@ func SessionData() *sessionData {
 
 func (s *sessionData) CreateSignedToken(userEmail string) (string, error) {
 	jwtToken := jwt.NewWithClaims(jwt.SigningMethodRS256, CustomClaims{
-		UserEmail: userEmail,
+		RegisteredClaims: jwt.RegisteredClaims{
+			Subject:   userEmail,
+			IssuedAt:  jwt.NewNumericDate(time.Now()),
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour * 6)),
+			ID:        fmt.Sprintf("%d", time.Now().UnixNano()),
+		},
 	})
 	tokenString, err := jwtToken.SignedString(s.PrivateKey)
 	if err != nil {
@@ -74,7 +80,7 @@ func EnforceValidSession() echo.MiddlewareFunc {
 		NewClaimsFunc: func(c echo.Context) jwt.Claims {
 			return new(CustomClaims)
 		},
-		ContextKey:    "user",
+		ContextKey:    "Authorization",
 		SigningMethod: "RS256",
 		SigningKey:    SessionData().PublicKey,
 	}
@@ -82,21 +88,32 @@ func EnforceValidSession() echo.MiddlewareFunc {
 }
 
 type CustomClaims struct {
-	UserEmail string
 	jwt.RegisteredClaims
 }
 
 func (s *sessionData) ReadClaims(signedToken string) (*CustomClaims, error) {
-	token, err := jwt.ParseWithClaims(signedToken, &CustomClaims{}, func(token *jwt.Token) (interface{}, error) {
-		if _, ok := token.Method.(*jwt.SigningMethodRSA); !ok {
-			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
-		}
-		return s.PublicKey, nil
-	})
+	token, err := s.ReadToken(signedToken)
 	if err != nil {
 		log.Println(err)
 		return nil, err
 	}
 
 	return token.Claims.(*CustomClaims), nil
+}
+
+func (s *sessionData) ReadToken(signedtoken string) (*jwt.Token, error) {
+	return jwt.ParseWithClaims(signedtoken, &CustomClaims{}, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodRSA); !ok {
+			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+		}
+		return s.PublicKey, nil
+	})
+}
+
+func ClaimsFromContext(c echo.Context) (*CustomClaims, error) {
+	token := c.Get("Authorization")
+	if token == nil {
+		return nil, fmt.Errorf("no token found in context")
+	}
+	return token.(*jwt.Token).Claims.(*CustomClaims), nil
 }

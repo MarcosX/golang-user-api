@@ -22,7 +22,9 @@ func TestGetUser(t *testing.T) {
 	rec := httptest.NewRecorder()
 
 	echoContext := echo.New().NewContext(req, rec)
-	echoContext.Set("user", jwt.NewWithClaims(jwt.SigningMethodRS256, &session.CustomClaims{UserEmail: "user@email.com"}))
+	signedToken, _ := session.SessionData().CreateSignedToken("user@email.com")
+	jwtToken, _ := session.SessionData().ReadToken(signedToken)
+	echoContext.Set("Authorization", jwtToken)
 	echoContext.SetParamNames("id")
 	echoContext.SetParamValues("0")
 
@@ -39,7 +41,7 @@ func TestGetNonExistingUser(t *testing.T) {
 	rec := httptest.NewRecorder()
 
 	echoContext := echo.New().NewContext(req, rec)
-	echoContext.Set("user", jwt.NewWithClaims(jwt.SigningMethodRS256, &session.CustomClaims{UserEmail: "user@email.com"}))
+	echoContext.Set("Authorization", jwt.NewWithClaims(jwt.SigningMethodRS256, &session.CustomClaims{RegisteredClaims: jwt.RegisteredClaims{Subject: "user@email.com"}}))
 	echoContext.SetParamNames("id")
 	echoContext.SetParamValues("99")
 
@@ -70,7 +72,7 @@ func TestGetUserInvalidSessionUserId(t *testing.T) {
 	rec := httptest.NewRecorder()
 
 	echoContext := echo.New().NewContext(req, rec)
-	echoContext.Set("user", jwt.NewWithClaims(jwt.SigningMethodRS256, &session.CustomClaims{UserEmail: "anotheruser@email.com"}))
+	echoContext.Set("Authorization", jwt.NewWithClaims(jwt.SigningMethodRS256, &session.CustomClaims{RegisteredClaims: jwt.RegisteredClaims{Subject: "anotheruser@email.com"}}))
 	echoContext.SetParamNames("id")
 	echoContext.SetParamValues("0")
 

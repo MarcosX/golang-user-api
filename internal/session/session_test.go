@@ -10,7 +10,7 @@ func TestGetclaims(t *testing.T) {
 	tokenString, _ := SessionData().CreateSignedToken("user@email.com")
 	claims, err := SessionData().ReadClaims(tokenString)
 	if assert.NoError(t, err) {
-		assert.Equal(t, "user@email.com", claims.UserEmail)
+		assert.Equal(t, "user@email.com", claims.Subject)
 	}
 }
 
@@ -26,7 +26,7 @@ func TestCreateToken(t *testing.T) {
 	if assert.NoError(t, err) {
 		claims, err := SessionData().ReadClaims(tokenString)
 		if assert.NoError(t, err) {
-			assert.Equal(t, "user@email.com", claims.UserEmail)
+			assert.Equal(t, "user@email.com", claims.Subject)
 		}
 	}
 }
