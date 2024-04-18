@@ -1,6 +1,9 @@
 package db
 
-import "github.com/google/uuid"
+import (
+	"github.com/google/uuid"
+	"golang.org/x/crypto/bcrypt"
+)
 
 var db map[string]*User
 
@@ -21,18 +24,22 @@ type User struct {
 	Password string `json:"-"`
 }
 
+func NewUser(id, name, email, password string) *User {
+	return &User{
+		Id:       id,
+		Name:     name,
+		Email:    email,
+		Password: hashAndSaltPassword(password),
+	}
+}
+
 func (u *User) PasswordMatches(password string) bool {
-	return u.Password == password
+	return bcrypt.CompareHashAndPassword([]byte(u.Password), []byte(password)) == nil
 }
 
 func CreateUser(name string, email string, password string) (*User, error) {
 	id := uuid.Must(uuid.NewRandom()).String()
-	user := &User{
-		Id:       id,
-		Name:     name,
-		Email:    email,
-		Password: password,
-	}
+	user := NewUser(id, name, email, password)
 	db[id] = user
 	return user, nil
 }
@@ -46,5 +53,11 @@ func GetAllUsers() []*User {
 }
 
 func SaveUser(user *User) {
+	user.Password = hashAndSaltPassword(user.Password)
 	db[user.Id] = user
+}
+
+func hashAndSaltPassword(password string) string {
+	hashedPassword, _ := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	return string(hashedPassword)
 }

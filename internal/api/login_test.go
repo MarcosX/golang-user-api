@@ -25,6 +25,7 @@ func TestPostLogin(t *testing.T) {
 	echoContext := echo.New().NewContext(req, rec)
 
 	h := newLoginHandlerTest()
+	h.userRepository.CreateUser("User", "user@email.com", "pass")
 	if assert.NoError(t, h.postLogin(echoContext)) {
 		assert.Equal(t, http.StatusOK, rec.Code)
 		response := &loginResponse{}

@@ -7,16 +7,12 @@ import (
 )
 
 func TestValidPassword(t *testing.T) {
-	user := User{
-		Password: "admin123",
-	}
+	user, _ := CreateUser("User", "email@email.com", "admin123")
 	assert.True(t, user.PasswordMatches("admin123"))
 }
 
 func TestWrongPassword(t *testing.T) {
-	user := User{
-		Password: "admin123",
-	}
+	user, _ := CreateUser("User", "email@email.com", "admin123")
 	assert.False(t, user.PasswordMatches("admin321"))
 }
 
@@ -31,7 +27,7 @@ func TestCreateUser(t *testing.T) {
 		assert.NotEmpty(t, user.Id)
 		assert.Equal(t, "User", user.Name)
 		assert.Equal(t, "user@email.com", user.Email)
-		assert.Equal(t, "pass", user.Password)
+		assert.True(t, user.PasswordMatches("pass"))
 	}
 	assert.GreaterOrEqual(t, len(db), 2)
 }
@@ -48,7 +44,7 @@ func TestSaveUser(t *testing.T) {
 	assert.NotEmpty(t, user.Id)
 	assert.Equal(t, "User Updated", user.Name)
 	assert.Equal(t, "another.email@email.com", user.Email)
-	assert.Equal(t, "pass123", user.Password)
+	assert.True(t, user.PasswordMatches("pass123"))
 }
 
 func TestGetAllUsers(t *testing.T) {
