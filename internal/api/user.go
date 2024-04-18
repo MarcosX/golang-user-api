@@ -22,13 +22,12 @@ func NewUserHanlder() *userHandler {
 }
 
 func (u *userHandler) getUser(c echo.Context) error {
-	userId := c.Param("id")
 	sessionClaims, err := session.ClaimsFromContext(c)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]string{"message": "invalid user session"})
 	}
 
-	user, err := u.userRepository.GetUser(userId)
+	user, err := u.userRepository.GetUserByEmail(sessionClaims.Subject)
 	if err != nil {
 		return c.NoContent(http.StatusNotFound)
 	}

@@ -14,7 +14,7 @@ func SetupHandlers(echoInstance *echo.Echo) {
 	userGroup := echoInstance.Group("/user", session.EnforceValidSession())
 
 	userHandler := NewUserHanlder()
-	userGroup.GET("/:id", userHandler.getUser)
+	userGroup.GET("", userHandler.getUser)
 
 	loginHandler := NewLoginHandler()
 	loginGroup := echoInstance.Group("/login")
