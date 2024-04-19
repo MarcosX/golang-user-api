@@ -85,6 +85,6 @@ func SaveUser(user *User) error {
 }
 
 func hashAndSaltPassword(password string) string {
-	hashedPassword, _ := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	hashedPassword, _ := bcrypt.GenerateFromPassword([]byte(password), bcrypt.MinCost)
 	return string(hashedPassword)
 }
