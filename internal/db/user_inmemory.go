@@ -5,16 +5,26 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-var db map[string]*User
+type db struct {
+	usersById    map[string]*User
+	usersByEmail map[string]*User
+}
+
+var usersDb *db
 
 func init() {
-	db = make(map[string]*User)
-	db["0"] = &User{
+	usersDb = &db{
+		usersById:    make(map[string]*User),
+		usersByEmail: make(map[string]*User),
+	}
+	sampleUser := &User{
 		Id:       "0",
 		Name:     "User",
 		Email:    "user@email.com",
 		Password: "pass",
 	}
+	usersDb.usersById[sampleUser.Id] = sampleUser
+	usersDb.usersByEmail[sampleUser.Email] = sampleUser
 }
 
 type User struct {
@@ -40,21 +50,31 @@ func (u *User) PasswordMatches(password string) bool {
 func CreateUser(name string, email string, password string) (*User, error) {
 	id := uuid.Must(uuid.NewRandom()).String()
 	user := NewUser(id, name, email, password)
-	db[id] = user
+	usersDb.usersById[user.Id] = user
+	usersDb.usersByEmail[user.Email] = user
 	return user, nil
 }
 
 func GetAllUsers() []*User {
-	users := make([]*User, 0, len(db))
-	for _, user := range db {
+	users := make([]*User, 0, len(usersDb.usersById))
+	for _, user := range usersDb.usersById {
 		users = append(users, user)
 	}
 	return users
 }
 
+func GetUserById(id string) *User {
+	return usersDb.usersById[id]
+}
+
+func GetUserByEmail(email string) *User {
+	return usersDb.usersByEmail[email]
+}
+
 func SaveUser(user *User) {
 	user.Password = hashAndSaltPassword(user.Password)
-	db[user.Id] = user
+	usersDb.usersById[user.Id] = user
+	usersDb.usersByEmail[user.Email] = user
 }
 
 func hashAndSaltPassword(password string) string {
