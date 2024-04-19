@@ -15,21 +15,19 @@ type realUserRepository struct {
 }
 
 func (u *realUserRepository) GetUser(id string) (*db.User, error) {
-	for _, v := range db.GetAllUsers() {
-		if v.Id == id {
-			return v, nil
-		}
+	user := db.GetUserById(id)
+	if user == nil {
+		return nil, &db.ErrUserNotFound{Id: id}
 	}
-	return nil, &db.ErrUserNotFound{Id: id}
+	return user, nil
 }
 
 func (u *realUserRepository) GetUserByEmail(email string) (*db.User, error) {
-	for _, v := range db.GetAllUsers() {
-		if v.Email == email {
-			return v, nil
-		}
+	user := db.GetUserByEmail(email)
+	if user == nil {
+		return nil, &db.ErrUserNotFound{Id: email}
 	}
-	return nil, &db.ErrUserNotFound{Id: email}
+	return user, nil
 }
 
 func (u *realUserRepository) UpdateUser(id string, name string, email string, password string) (*db.User, error) {

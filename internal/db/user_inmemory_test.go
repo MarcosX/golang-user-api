@@ -7,21 +7,19 @@ import (
 )
 
 func TestValidPassword(t *testing.T) {
+	defer clearUsersDb()
 	user, _ := CreateUser("User", "email@email.com", "admin123")
 	assert.True(t, user.PasswordMatches("admin123"))
 }
 
 func TestWrongPassword(t *testing.T) {
+	defer clearUsersDb()
 	user, _ := CreateUser("User", "email@email.com", "admin123")
 	assert.False(t, user.PasswordMatches("admin321"))
 }
 
-func TestInitInMemoryDB(t *testing.T) {
-	assert.GreaterOrEqual(t, len(usersDb.usersById), 1)
-	assert.GreaterOrEqual(t, len(usersDb.usersByEmail), 1)
-}
-
 func TestCreateUser(t *testing.T) {
+	defer clearUsersDb()
 	user, err := CreateUser("User", "user@email.com", "pass")
 	if assert.NoError(t, err) {
 		assert.NotNil(t, user)
@@ -30,11 +28,12 @@ func TestCreateUser(t *testing.T) {
 		assert.Equal(t, "user@email.com", user.Email)
 		assert.True(t, user.PasswordMatches("pass"))
 	}
-	assert.GreaterOrEqual(t, len(usersDb.usersById), 2)
-	assert.GreaterOrEqual(t, len(usersDb.usersByEmail), 2)
+	assert.Equal(t, len(usersDb.usersById), 1)
+	assert.Equal(t, len(usersDb.usersByEmail), 1)
 }
 
 func TestSaveUser(t *testing.T) {
+	defer clearUsersDb()
 	user, _ := CreateUser("User", "user@email.com", "pass")
 	user.Name = "User Updated"
 	user.Email = "another.email@email.com"
@@ -50,12 +49,14 @@ func TestSaveUser(t *testing.T) {
 }
 
 func TestGetAllUsers(t *testing.T) {
+	defer clearUsersDb()
 	user, _ := CreateUser("User", "user@email.com", "pass")
 	users := GetAllUsers()
 	assert.Contains(t, users, user)
 }
 
 func TestGetUserById(t *testing.T) {
+	defer clearUsersDb()
 	user, _ := CreateUser("User", "user@email.com", "pass")
 
 	userFound := GetUserById(user.Id)
@@ -63,8 +64,32 @@ func TestGetUserById(t *testing.T) {
 
 }
 func TestGetUserByEmail(t *testing.T) {
+	defer clearUsersDb()
 	user, _ := CreateUser("User", "user@email.com", "pass")
 
 	userFound := GetUserByEmail(user.Email)
 	assert.NotNil(t, userFound)
+}
+
+func TestCreateUserWithDuplicateEmail(t *testing.T) {
+	defer clearUsersDb()
+	CreateUser("User", "user@email.com", "pass")
+
+	_, err := CreateUser("User", "user@email.com", "pass")
+	assert.Error(t, err)
+}
+
+func TestSaveUserWithDuplicateEmail(t *testing.T) {
+	defer clearUsersDb()
+	CreateUser("User", "user@email.com", "pass")
+	secondUser, _ := CreateUser("User 2", "anotheruser@email.com", "pass")
+	secondUser.Email = "user@email.com"
+
+	err := SaveUser(secondUser)
+	assert.Error(t, err)
+}
+
+func clearUsersDb() {
+	usersDb.usersById = make(map[string]*User)
+	usersDb.usersByEmail = make(map[string]*User)
 }

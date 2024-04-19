@@ -48,6 +48,9 @@ func (u *User) PasswordMatches(password string) bool {
 }
 
 func CreateUser(name string, email string, password string) (*User, error) {
+	if usersDb.usersByEmail[email] != nil {
+		return nil, &ErrUserAlreadyExists{Id: email}
+	}
 	id := uuid.Must(uuid.NewRandom()).String()
 	user := NewUser(id, name, email, password)
 	usersDb.usersById[user.Id] = user
@@ -71,10 +74,14 @@ func GetUserByEmail(email string) *User {
 	return usersDb.usersByEmail[email]
 }
 
-func SaveUser(user *User) {
+func SaveUser(user *User) error {
+	if usersDb.usersByEmail[user.Email] != nil {
+		return &ErrUserAlreadyExists{Id: user.Email}
+	}
 	user.Password = hashAndSaltPassword(user.Password)
 	usersDb.usersById[user.Id] = user
 	usersDb.usersByEmail[user.Email] = user
+	return nil
 }
 
 func hashAndSaltPassword(password string) string {
