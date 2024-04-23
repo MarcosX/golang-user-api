@@ -17,3 +17,11 @@ type ErrUserAlreadyExists struct {
 func (e *ErrUserAlreadyExists) Error() string {
 	return fmt.Sprintf("dupulicated user %s", e.Id)
 }
+
+type ErrValidationFailed struct {
+	Field string
+}
+
+func (e *ErrValidationFailed) Error() string {
+	return fmt.Sprintf("validation failed for field %s", e.Field)
+}

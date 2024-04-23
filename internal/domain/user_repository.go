@@ -38,7 +38,7 @@ func (u *realUserRepository) UpdateUser(id string, name string, email string, pa
 	user.Name = name
 	user.Email = email
 	user.Password = password
-	db.SaveUser(user)
+	user.SaveUser()
 	return user, nil
 }
 

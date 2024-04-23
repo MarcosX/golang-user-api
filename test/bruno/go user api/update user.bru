@@ -4,18 +4,19 @@ meta {
   seq: 6
 }
 
-post {
-  url: http://localhost:8080/signup
+put {
+  url: http://localhost:8080/user
   body: formUrlEncoded
   auth: none
 }
 
 headers {
   Content-Type: application/x-www-form-urlencoded
+  Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VyQGVtYWlsLmNvbSIsImV4cCI6MTcxMzQ4ODIyOCwiaWF0IjoxNzEzNDY2NjI4LCJqdGkiOiIxNzEzNDY2NjI4Njg0NTk5Njg3In0.qyZhFXiji_NijjACOwgSahMKu9YxWXPGnQV8EvCQgRjdxW37JMFapUrMMVLZ0baexFfxRGqgq7ptu0VaQmL6OGF7AprrYKK0UnwhBgci-Cxki5NaDEDeXEFc2ETDW3VDQ6CzOg1TtanVH9TzfSylJvebn1k0K3TcumdKD69ObPII1rv9tNaHWS7MZIEV__O9RPPGunoQZUProBwqI2jtPsrGjcYxfzoEZkVDLI3k5AGP_wtAmqC2q5pWsTv7CV_zw7xAjFMQldHLKtZa6sw0BQRvXFtGdtcMGycxFfwP2_J_rtS3bNUQP_gUNmWQScFOmiyVAzxdVOrVsxV1o2-0lw
 }
 
 body:form-urlencoded {
-  email: maggie@email.com
-  password: maggie
-  name: Maggie
+  email: maggie2@email.com
+  password: maggie2
+  name: Maggie2
 }

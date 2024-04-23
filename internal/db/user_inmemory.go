@@ -1,6 +1,8 @@
 package db
 
 import (
+	"regexp"
+
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -34,13 +36,35 @@ type User struct {
 	Password string `json:"-"`
 }
 
-func NewUser(id, name, email, password string) *User {
-	return &User{
+func NewUser(id, name, email, password string) (*User, error) {
+	u := &User{
 		Id:       id,
 		Name:     name,
 		Email:    email,
-		Password: hashAndSaltPassword(password),
+		Password: password,
 	}
+	if err := u.Validate(); err != nil {
+		return nil, err
+	}
+	u.Password = hashAndSaltPassword(u.Password)
+	return u, nil
+}
+
+func (u *User) Validate() error {
+	if u.Name == "" {
+		return &ErrValidationFailed{Field: "name"}
+	}
+	if u.Email == "" {
+		return &ErrValidationFailed{Field: "email"}
+	}
+	emailRegex := regexp.MustCompile(`^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`)
+	if !emailRegex.MatchString(u.Email) {
+		return &ErrValidationFailed{Field: "email"}
+	}
+	if u.Password == "" {
+		return &ErrValidationFailed{Field: "password"}
+	}
+	return nil
 }
 
 func (u *User) PasswordMatches(password string) bool {
@@ -52,7 +76,10 @@ func CreateUser(name string, email string, password string) (*User, error) {
 		return nil, &ErrUserAlreadyExists{Id: email}
 	}
 	id := uuid.Must(uuid.NewRandom()).String()
-	user := NewUser(id, name, email, password)
+	user, err := NewUser(id, name, email, password)
+	if err != nil {
+		return nil, err
+	}
 	usersDb.usersById[user.Id] = user
 	usersDb.usersByEmail[user.Email] = user
 	return user, nil
@@ -74,13 +101,16 @@ func GetUserByEmail(email string) *User {
 	return usersDb.usersByEmail[email]
 }
 
-func SaveUser(user *User) error {
-	if usersDb.usersByEmail[user.Email] != nil {
-		return &ErrUserAlreadyExists{Id: user.Email}
+func (u *User) SaveUser() error {
+	if err := u.Validate(); err != nil {
+		return err
 	}
-	user.Password = hashAndSaltPassword(user.Password)
-	usersDb.usersById[user.Id] = user
-	usersDb.usersByEmail[user.Email] = user
+	if usersDb.usersByEmail[u.Email] != nil {
+		return &ErrUserAlreadyExists{Id: u.Email}
+	}
+	u.Password = hashAndSaltPassword(u.Password)
+	usersDb.usersById[u.Id] = u
+	usersDb.usersByEmail[u.Email] = u
 	return nil
 }
 

@@ -38,7 +38,7 @@ func TestSaveUser(t *testing.T) {
 	user.Name = "User Updated"
 	user.Email = "another.email@email.com"
 	user.Password = "pass123"
-	SaveUser(user)
+	user.SaveUser()
 	user = usersDb.usersById[user.Id]
 
 	assert.NotNil(t, user)
@@ -85,7 +85,64 @@ func TestSaveUserWithDuplicateEmail(t *testing.T) {
 	secondUser, _ := CreateUser("User 2", "anotheruser@email.com", "pass")
 	secondUser.Email = "user@email.com"
 
-	err := SaveUser(secondUser)
+	err := secondUser.SaveUser()
+	assert.Error(t, err)
+}
+
+// tests for user field validations
+func TestCreateUserWithEmptyName(t *testing.T) {
+	defer clearUsersDb()
+	_, err := CreateUser("", "user@email", "pass123")
+	assert.Error(t, err)
+}
+
+func TestCreateUserWithEmptyEmail(t *testing.T) {
+	defer clearUsersDb()
+	_, err := CreateUser("User", "", "pass123")
+	assert.Error(t, err)
+}
+
+func TestCreateUserWithInvalidEmail(t *testing.T) {
+	defer clearUsersDb()
+	_, err := CreateUser("User", "invalid-email", "pass123")
+	assert.Error(t, err)
+}
+
+func TestCreateUserWithEmptyPassword(t *testing.T) {
+	defer clearUsersDb()
+	_, err := CreateUser("User", "user@email.com", "")
+	assert.Error(t, err)
+}
+
+func TestSaveUserWithEmptyName(t *testing.T) {
+	defer clearUsersDb()
+	user, _ := CreateUser("User", "user@email.com", "pass123")
+	user.Name = ""
+	err := user.SaveUser()
+	assert.Error(t, err)
+}
+
+func TestSaveUserWithEmptyEmail(t *testing.T) {
+	defer clearUsersDb()
+	user, _ := CreateUser("User", "user@email.com", "pass123")
+	user.Email = ""
+	err := user.SaveUser()
+	assert.Error(t, err)
+}
+
+func TestSaveUserWithInvalidEmail(t *testing.T) {
+	defer clearUsersDb()
+	user, _ := CreateUser("User", "user@email.com", "pass123")
+	user.Email = "invalid-email"
+	err := user.SaveUser()
+	assert.Error(t, err)
+}
+
+func TestSaveUserWithEmptyPassword(t *testing.T) {
+	defer clearUsersDb()
+	user, _ := CreateUser("User", "user@email.com", "pass123")
+	user.Password = ""
+	err := user.SaveUser()
 	assert.Error(t, err)
 }
 
