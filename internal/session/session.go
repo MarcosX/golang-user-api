@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
-	echojwt "github.com/labstack/echo-jwt/v4"
 	"github.com/labstack/echo/v4"
 )
 
@@ -73,18 +72,6 @@ func (s *sessionData) CreateSignedToken(userEmail string) (string, error) {
 		return "", err
 	}
 	return tokenString, nil
-}
-
-func EnforceValidSession() echo.MiddlewareFunc {
-	config := echojwt.Config{
-		NewClaimsFunc: func(c echo.Context) jwt.Claims {
-			return new(CustomClaims)
-		},
-		ContextKey:    "Authorization",
-		SigningMethod: "RS256",
-		SigningKey:    SessionData().PublicKey,
-	}
-	return echojwt.WithConfig(config)
 }
 
 type CustomClaims struct {
