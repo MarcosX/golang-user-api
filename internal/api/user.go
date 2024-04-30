@@ -26,12 +26,8 @@ func NewUserHanlder(userRepository domain.UserRepository) *userHandler {
 }
 
 func (handler *userHandler) getUser(c echo.Context) error {
-	sessionClaims, err := session.ClaimsFromContext(c)
-	if err != nil {
-		return c.NoContent(http.StatusBadRequest)
-	}
-
-	user, err := handler.userRepository.GetUserByEmail(sessionClaims.Subject)
+	userEmail := session.ClaimsFromContext(c).Subject
+	user, err := handler.userRepository.GetUserByEmail(userEmail)
 	if err != nil {
 		return c.NoContent(http.StatusNotFound)
 	}
@@ -40,12 +36,8 @@ func (handler *userHandler) getUser(c echo.Context) error {
 }
 
 func (handler *userHandler) putUser(c echo.Context) error {
-	sessionClaims, err := session.ClaimsFromContext(c)
-	if err != nil {
-		return c.NoContent(http.StatusBadRequest)
-	}
-
-	user, err := handler.userRepository.GetUserByEmail(sessionClaims.Subject)
+	sessionClaims := session.ClaimsFromContext(c).Subject
+	user, err := handler.userRepository.GetUserByEmail(sessionClaims)
 	if err != nil {
 		return c.NoContent(http.StatusNotFound)
 	}

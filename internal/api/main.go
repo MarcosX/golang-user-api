@@ -14,8 +14,8 @@ func SetupHandlers(echoInstance *echo.Echo) {
 	echoInstance.Use(middleware.Recover())
 
 	echoInstance.GET("/health", getHealth)
-	userGroup := echoInstance.Group("/user", session.EnforceValidSession())
 
+	userGroup := echoInstance.Group("/user", session.EnforceValidSession())
 	userHandler := NewUserHanlder(userRepository)
 	userGroup.GET("", userHandler.getUser)
 	userGroup.PUT("", userHandler.putUser)

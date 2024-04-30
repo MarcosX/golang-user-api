@@ -34,19 +34,6 @@ func TestGetUser(t *testing.T) {
 	}
 }
 
-func TestGetUserNonExistingSession(t *testing.T) {
-	req := httptest.NewRequest(http.MethodGet, "/user/", nil)
-	rec := httptest.NewRecorder()
-
-	echoContext := echo.New().NewContext(req, rec)
-
-	handler := newUserHandlerTest()
-
-	if assert.NoError(t, handler.getUser(echoContext)) {
-		assert.Equal(t, http.StatusBadRequest, rec.Code)
-	}
-}
-
 func TestGetUserNonExistingUser(t *testing.T) {
 	req := httptest.NewRequest(http.MethodGet, "/user/", nil)
 	rec := httptest.NewRecorder()
@@ -109,25 +96,6 @@ func TestPutNonExistingUser(t *testing.T) {
 
 	if assert.NoError(t, handler.putUser(echoContext)) {
 		assert.Equal(t, http.StatusNotFound, rec.Code)
-	}
-}
-
-func TestPutUserNoToken(t *testing.T) {
-	form := url.Values{}
-	form.Add("email", "updated@email.com")
-	form.Add("password", "updatedpass")
-	form.Add("name", "Updated Name")
-	req := httptest.NewRequest(http.MethodPut, "/user/", nil)
-	req.Form = form
-	rec := httptest.NewRecorder()
-
-	handler := newUserHandlerTest()
-	handler.userRepository.CreateUser("User", "user@email.com", "pass")
-
-	echoContext := echo.New().NewContext(req, rec)
-
-	if assert.NoError(t, handler.putUser(echoContext)) {
-		assert.Equal(t, http.StatusBadRequest, rec.Code)
 	}
 }
 

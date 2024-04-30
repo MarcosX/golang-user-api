@@ -110,10 +110,7 @@ func (s *sessionData) ReadToken(signedtoken string) (*jwt.Token, error) {
 	})
 }
 
-func ClaimsFromContext(c echo.Context) (*CustomClaims, error) {
+func ClaimsFromContext(c echo.Context) *CustomClaims {
 	token := c.Get("Authorization")
-	if token == nil {
-		return nil, fmt.Errorf("no token found in context")
-	}
-	return token.(*jwt.Token).Claims.(*CustomClaims), nil
+	return token.(*jwt.Token).Claims.(*CustomClaims)
 }
