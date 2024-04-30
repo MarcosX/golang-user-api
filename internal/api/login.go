@@ -1,7 +1,6 @@
 package api
 
 import (
-	"log"
 	"net/http"
 
 	"github.com/brizenox/golang-user-api/internal/domain"
@@ -24,22 +23,15 @@ func NewLoginHandler(userRepository domain.UserRepository) *loginHandler {
 	}
 }
 
-func (h *loginHandler) postLogin(c echo.Context) error {
-	emailFromForm := c.FormValue("email")
-	passwordFromForm := c.FormValue("password")
-
-	user, err := h.userRepository.GetUserByEmail(emailFromForm)
-	if err != nil {
-		log.Println(err)
+func (handler *loginHandler) postLogin(c echo.Context) error {
+	user, err := handler.userRepository.GetUserByEmail(c.FormValue("email"))
+	if err != nil || !user.PasswordMatches(c.FormValue("password")) {
 		return c.NoContent(http.StatusUnauthorized)
 	}
-	if user.PasswordMatches(passwordFromForm) {
-		token, err := session.SessionData().CreateSignedToken(user.Email)
-		if err != nil {
-			log.Println(err)
-			return c.NoContent(http.StatusInternalServerError)
-		}
-		return c.JSON(http.StatusOK, &loginResponse{Token: token})
+
+	token, err := session.SessionData().CreateSignedToken(user.Email)
+	if err != nil {
+		return c.NoContent(http.StatusInternalServerError)
 	}
-	return c.NoContent(http.StatusUnauthorized)
+	return c.JSON(http.StatusOK, &loginResponse{Token: token})
 }
