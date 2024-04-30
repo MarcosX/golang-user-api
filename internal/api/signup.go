@@ -25,17 +25,13 @@ func NewSignupHandler(userRepository domain.UserRepository) *signupHandler {
 	}
 }
 
-func (h *signupHandler) postSignup(c echo.Context) error {
-	name := c.FormValue("name")
-	email := c.FormValue("email")
-	password := c.FormValue("password")
-
-	user, err := h.userRepository.CreateUser(name, email, password)
+func (handler *signupHandler) postSignup(c echo.Context) error {
+	user, err := handler.userRepository.CreateUser(c.FormValue("name"), c.FormValue("email"), c.FormValue("password"))
 	if err != nil {
 		return c.NoContent(http.StatusBadRequest)
 	}
 
-	token, err := session.SessionData().CreateSignedToken(email)
+	token, err := session.SessionData().CreateSignedToken(user.Email)
 	if err != nil {
 		return c.NoContent(http.StatusInternalServerError)
 	}
