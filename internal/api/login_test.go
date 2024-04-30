@@ -67,7 +67,7 @@ func TestPostLoginInvalidUser(t *testing.T) {
 
 	h := newLoginHandlerTest()
 	if assert.NoError(t, h.postLogin(echoContext)) {
-		assert.Equal(t, http.StatusBadRequest, rec.Code)
+		assert.Equal(t, http.StatusUnauthorized, rec.Code)
 	}
 }
 
