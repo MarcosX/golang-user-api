@@ -25,13 +25,13 @@ func NewUserHanlder(userRepository domain.UserRepository) *userHandler {
 	}
 }
 
-func (u *userHandler) getUser(c echo.Context) error {
+func (handler *userHandler) getUser(c echo.Context) error {
 	sessionClaims, err := session.ClaimsFromContext(c)
 	if err != nil {
-		return c.JSON(http.StatusBadRequest, map[string]string{"message": "invalid user session"})
+		return c.NoContent(http.StatusBadRequest)
 	}
 
-	user, err := u.userRepository.GetUserByEmail(sessionClaims.Subject)
+	user, err := handler.userRepository.GetUserByEmail(sessionClaims.Subject)
 	if err != nil {
 		return c.NoContent(http.StatusNotFound)
 	}
@@ -39,18 +39,18 @@ func (u *userHandler) getUser(c echo.Context) error {
 	return c.JSON(http.StatusOK, user)
 }
 
-func (u *userHandler) putUser(c echo.Context) error {
+func (handler *userHandler) putUser(c echo.Context) error {
 	sessionClaims, err := session.ClaimsFromContext(c)
 	if err != nil {
-		return c.JSON(http.StatusBadRequest, map[string]string{"message": "invalid user session"})
+		return c.NoContent(http.StatusBadRequest)
 	}
 
-	user, err := u.userRepository.GetUserByEmail(sessionClaims.Subject)
+	user, err := handler.userRepository.GetUserByEmail(sessionClaims.Subject)
 	if err != nil {
 		return c.NoContent(http.StatusNotFound)
 	}
 
-	user, err = u.userRepository.UpdateUser(user.Id, c.FormValue("name"), c.FormValue("email"), c.FormValue("password"))
+	user, err = handler.userRepository.UpdateUser(user.Id, c.FormValue("name"), c.FormValue("email"), c.FormValue("password"))
 	if err != nil {
 		return c.NoContent(http.StatusBadRequest)
 	}
