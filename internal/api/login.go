@@ -18,18 +18,25 @@ type (
 	}
 )
 
-func NewLoginHandler() *loginHandler {
+func NewLoginHandler(userRepository domain.UserRepository) *loginHandler {
 	return &loginHandler{
-		userRepository: domain.NewUserRepository(),
+		userRepository: userRepository,
 	}
 }
 
 func (h *loginHandler) postLogin(c echo.Context) error {
-	user, err := h.userRepository.GetUserByEmail(c.FormValue("email"))
-	if err != nil {
+	emailFromForm := c.FormValue("email")
+	passwordFromForm := c.FormValue("password")
+	if emailFromForm == "" || passwordFromForm == "" {
+		log.Println("email or password is empty")
 		return c.NoContent(http.StatusBadRequest)
 	}
-	if user.PasswordMatches(c.FormValue("password")) {
+	user, err := h.userRepository.GetUserByEmail(emailFromForm)
+	if err != nil {
+		log.Println(err)
+		return c.NoContent(http.StatusUnauthorized)
+	}
+	if user.PasswordMatches(passwordFromForm) {
 		token, err := session.SessionData().CreateSignedToken("user@email.com")
 		if err != nil {
 			log.Println(err)

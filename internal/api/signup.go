@@ -19,9 +19,9 @@ type (
 	}
 )
 
-func NewSignupHandler() *signupHandler {
+func NewSignupHandler(userRepository domain.UserRepository) *signupHandler {
 	return &signupHandler{
-		userRepository: domain.NewUserRepository(),
+		userRepository: userRepository,
 	}
 }
 

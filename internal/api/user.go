@@ -19,9 +19,9 @@ type (
 	}
 )
 
-func NewUserHanlder() *userHandler {
+func NewUserHanlder(userRepository domain.UserRepository) *userHandler {
 	return &userHandler{
-		userRepository: domain.NewUserRepository(),
+		userRepository: userRepository,
 	}
 }
 
