@@ -55,7 +55,11 @@ func (u *realUserRepository) UpdateUser(id string, name string, email string, pa
 }
 
 func (u *realUserRepository) CreateUser(name string, email string, password string) (*db.User, error) {
-	user := db.NewUser(name, email, password)
+	user, err := db.NewUser(name, email, password)
+	if err != nil {
+		return nil, err
+	}
+
 	if err := validate(user); err != nil {
 		return nil, err
 	}

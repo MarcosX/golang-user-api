@@ -24,15 +24,19 @@ type User struct {
 	Password string `json:"-"`
 }
 
-func NewUser(name, email, password string) *User {
+func NewUser(name, email, password string) (*User, error) {
 	u := &User{
 		Id:       uuid.Must(uuid.NewRandom()).String(),
 		Name:     name,
 		Email:    email,
 		Password: password,
 	}
-	u.Password = hashAndSaltPassword(u.Password)
-	return u
+	hashedPassword, err := hashAndSaltPassword(u.Password)
+	if err != nil {
+		return nil, err
+	}
+	u.Password = hashedPassword
+	return u, nil
 }
 
 func (u *User) PasswordMatches(password string) bool {
@@ -43,7 +47,10 @@ func (db *InMemoryDb) CreateUser(name string, email string, password string) (*U
 	if db.usersByEmail[email] != nil {
 		return nil, &ErrUserAlreadyExists{Id: email}
 	}
-	user := NewUser(name, email, password)
+	user, err := NewUser(name, email, password)
+	if err != nil {
+		return nil, err
+	}
 	db.usersById[user.Id] = user
 	db.usersByEmail[user.Email] = user
 	return user, nil
@@ -69,13 +76,17 @@ func (db *InMemoryDb) SaveUser(u *User) error {
 	if db.usersByEmail[u.Email] != nil {
 		return &ErrUserAlreadyExists{Id: u.Email}
 	}
-	u.Password = hashAndSaltPassword(u.Password)
+	hashedPassword, err := hashAndSaltPassword(u.Password)
+	if err != nil {
+		return err
+	}
+	u.Password = hashedPassword
 	db.usersById[u.Id] = u
 	db.usersByEmail[u.Email] = u
 	return nil
 }
 
-func hashAndSaltPassword(password string) string {
-	hashedPassword, _ := bcrypt.GenerateFromPassword([]byte(password), bcrypt.MinCost)
-	return string(hashedPassword)
+func hashAndSaltPassword(password string) (string, error) {
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.MinCost)
+	return string(hashedPassword), err
 }

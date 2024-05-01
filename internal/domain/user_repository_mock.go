@@ -6,7 +6,7 @@ import (
 	"github.com/brizenox/golang-user-api/internal/db"
 )
 
-var UserSample = db.NewUser("User", "user@email.com", "pass")
+var UserSample, _ = db.NewUser("User", "user@email.com", "pass")
 
 type mockUserRepository struct {
 	users []*db.User
@@ -44,7 +44,10 @@ func (repository *mockUserRepository) CreateUser(name string, email string, pass
 	if name == "Crash()" {
 		return nil, fmt.Errorf("Crash() called")
 	}
-	user := db.NewUser(name, email, password)
+	user, err := db.NewUser(name, email, password)
+	if err != nil {
+		return nil, err
+	}
 	repository.users = append(repository.users, user)
 	return user, nil
 }
@@ -53,7 +56,10 @@ func (repository *mockUserRepository) UpdateUser(id string, name string, email s
 	if name == "Crash()" {
 		return nil, fmt.Errorf("Crash() called")
 	}
-	user := db.NewUser(name, email, password)
+	user, err := db.NewUser(name, email, password)
+	if err != nil {
+		return nil, err
+	}
 	repository.users = append(repository.users, user)
 	return user, nil
 }
