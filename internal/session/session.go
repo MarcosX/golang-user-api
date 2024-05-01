@@ -33,11 +33,11 @@ func SessionData() *sessionData {
 	}
 	publicKeyFile, err := os.ReadFile(publicKeyPath)
 	if err != nil {
-		log.Fatalf("could not load session key: %s", err)
+		log.Panicf("could not load session key: %s", err)
 	}
 	session.PublicKey, err = jwt.ParseRSAPublicKeyFromPEM(publicKeyFile)
 	if err != nil {
-		log.Fatalf("could not load session key: %s", err)
+		log.Panicf("could not load session key: %s", err)
 	}
 
 	privateKeyPath := "../../test/jwtRS256.key"
@@ -48,11 +48,11 @@ func SessionData() *sessionData {
 	}
 	privateKeyFile, err := os.ReadFile(privateKeyPath)
 	if err != nil {
-		log.Fatalf("could not load session key: %s", err)
+		log.Panicf("could not load session key: %s", err)
 	}
 	session.PrivateKey, err = jwt.ParseRSAPrivateKeyFromPEM(privateKeyFile)
 	if err != nil {
-		log.Fatalf("could not load session key: %s", err)
+		log.Panicf("could not load session key: %s", err)
 	}
 
 	return session
